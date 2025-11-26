@@ -24,47 +24,50 @@ type TestFixture = {
 export const test = base.extend<TestFixture>({
     usersApi: async ({ request }, use) => {
         const api = new UsersApi(request);
-        use(api);
+        await use(api);
     },
 
     albumsApi: async ({ request }, use) => {
         const api = new AlbumApi(request);
-        use(api);
+        await use(api);
     },
 
     postsApi: async ({ request }, use) => {
         const api = new PostsApi(request);
-        use(api);
+        await use(api);
     },
 
     usersGenerator: async ({ usersApi }, use) => {
         const generator = new UsersGenerator(usersApi);
-        use(generator);
+        await use(generator);
+        await generator.cleanup();
     },
 
     albumsGenerator: async ({ albumsApi, usersGenerator }, use) => {
         const generator = new AlbumsGenerator(albumsApi, usersGenerator);
-        use(generator);
+        await use(generator);
+        await generator.cleanup();
     },
 
     postsGenerator: async ({ postsApi, usersGenerator }, use) => {
         const generator = new PostsGenerator(postsApi, usersGenerator);
-        use(generator);
+        await use(generator);
+        await generator.cleanup();
     },
 
     user: async ({ usersGenerator }, use) => {
         const user = await usersGenerator.generateAndPost();
-        use(user);
+        await use(user);
     },
 
     album: async ({ albumsGenerator }, use) => {
         const album = await albumsGenerator.generateAndPost();
-        use(album);
+        await use(album);
     },
 
     post: async ({ postsGenerator }, use) => {
         const post = await postsGenerator.generateAndPost();
-        use(post);
+        await use(post);
     },
 });
 
